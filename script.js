@@ -26,37 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         isJumping: false
     };
 
-    // Obstáculos, Pedras e Pontes
+    // Obstáculos (agora apenas 3)
     let obstacles = [
         { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
         { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
-        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 },
-        { x: 800, y: gameHeight - groundHeight - 70, width: 40, height: 70 },
-        { x: 300, y: gameHeight - groundHeight - 20, width: 50, height: 20 },
-        { x: 500, y: gameHeight - groundHeight - 50, width: 20, height: 50 },
-        { x: 750, y: gameHeight - groundHeight - 50, width: 40, height: 50 }
+        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
     ];
-
-    let environment = [
-        { type: 'platform', x: 150, y: gameHeight - groundHeight + 20, width: 100, height: 20 },
-        { type: 'platform', x: 550, y: gameHeight - groundHeight + 10, width: 80, height: 20 },
-        { type: 'stone', x: 700, y: gameHeight - groundHeight - 10, width: 40, height: 40 }
-    ];
-
-    // Animação de Morcegos
-    let bats = [
-        { x: 300, y: 100, speedX: 2 },
-        { x: 700, y: 150, speedX: -1.5 }
-    ];
-
-    // Animação de Tochas
-    let torches = [
-        { x: 100, y: gameHeight - groundHeight - 60, colorIndex: 0 },
-        { x: 850, y: gameHeight - groundHeight - 70, colorIndex: 1 }
-    ];
-    const torchColors = ['#ff9900', '#ff6600'];
-    let torchTimer = 0;
-    const torchInterval = 15;
 
     let levelComplete = false;
 
@@ -160,25 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        for (let bat of bats) {
-            bat.x += bat.speedX;
-            if (bat.x < 0 || bat.x > gameWidth) {
-                bat.speedX *= -1;
-            }
-            if (checkCollision(player, { x: bat.x, y: bat.y, width: 30, height: 20 })) {
-                player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight;
-                player.velocityY = 0;
-                player.isJumping = false;
-            }
-        }
-
-        torchTimer++;
-        if (torchTimer >= torchInterval) {
-            torchTimer = 0;
-            torches.forEach(torch => torch.colorIndex = 1 - torch.colorIndex);
-        }
-
         const scaleX = canvas.width / gameWidth;
         const scaleY = canvas.height / gameHeight;
         playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
@@ -188,13 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function drawEnvironment() {
-        ctx.fillStyle = '#4a4a4a';
-        environment.forEach(obj => {
-            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-        });
-    }
-
     function drawObstacles() {
         ctx.fillStyle = 'red';
         obstacles.forEach(obstacle => {
@@ -202,27 +151,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function drawBats() {
-        ctx.fillStyle = '#333';
-        bats.forEach(bat => {
-            ctx.fillRect(bat.x, bat.y, 30, 20);
-        });
-    }
-
-    function drawTorches() {
-        torches.forEach(torch => {
-            ctx.fillStyle = torchColors[torch.colorIndex];
-            ctx.fillRect(torch.x, torch.y, 10, 30);
-        });
-    }
-
     function draw() {
         ctx.clearRect(0, 0, gameWidth, gameHeight);
-        drawEnvironment();
         drawObstacles();
-        drawBats();
-        drawTorches();
 
+        // Linha verde de chegada
         ctx.fillStyle = 'green';
         ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
     }
