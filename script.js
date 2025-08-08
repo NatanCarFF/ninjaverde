@@ -1,176 +1,120 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Referências aos elementos HTML
-    const playerContainer = document.getElementById('player-container');
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const leftBtn = document.getElementById('left-btn');
-    const rightBtn = document.getElementById('right-btn');
-    const jumpBtn = document.getElementById('jump-btn');
+    const character = document.getElementById('character');
+    const gameArea = document.querySelector('.game-area');
+    const gameContainer = document.querySelector('.game-container');
+    const actionButton = document.getElementById('action');
+    const totalItems = 10;
+    let itemsCollected = 0;
+    let characterPosition = { x: 50, y: 50 };
+    let finalCircle = null;
 
-    // Configurações do jogo
-    const gameWidth = 960;
-    const gameHeight = 540;
-    const playerSpeed = 5;
-    const jumpPower = -15;
-    const gravity = 0.8;
-    const groundHeight = 100;
-    const playerWidth = 50;
-    const playerHeight = 50;
-    const finalZoneWidth = 80;
+    const items = [];
 
-    // Posição inicial do personagem - A base do personagem fica exatamente na linha do chão.
-    let player = {
-        x: 50,
-        y: gameHeight - groundHeight - playerHeight,
-        velocityX: 0,
-        velocityY: 0,
-        isJumping: false
-    };
-
-    // Obstáculos (apenas os 3 solicitados)
-    let obstacles = [
-        { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
-        { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
-        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
-    ];
-
-    let levelComplete = false;
-
-    // Redimensiona o canvas e o player-container
-    function resizeCanvas() {
-        const aspectRatio = gameWidth / gameHeight;
-        let newWidth, newHeight;
-
-        if (window.innerWidth / window.innerHeight > aspectRatio) {
-            newHeight = window.innerHeight;
-            newWidth = newHeight * aspectRatio;
-        } else {
-            newWidth = window.innerWidth;
-            newHeight = newWidth / aspectRatio;
-        }
-
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-
-        const scaleX = newWidth / gameWidth;
-        const scaleY = newHeight / gameHeight;
-
-        ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
-
-        playerContainer.style.width = playerWidth * scaleX + 'px';
-        playerContainer.style.height = playerHeight * scaleY + 'px';
-        playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Lógica dos controles
-    let keys = { left: false, right: false, jump: false };
-
-    function handleKeyDown(event) {
-        if (event.key === 'ArrowLeft' || event.key === 'a') keys.left = true;
-        if (event.key === 'ArrowRight' || event.key === 'd') keys.right = true;
-        if (event.key === 'ArrowUp' || event.key === 'w' || event.key === ' ') keys.jump = true;
+    // Função para posicionar o personagem
+    function updateCharacterPosition() {
+        character.style.left = `${characterPosition.x}%`;
+        character.style.top = `${characterPosition.y}%`;
     }
 
-    function handleKeyUp(event) {
-        if (event.key === 'ArrowLeft' || event.key === 'a') keys.left = false;
-        if (event.key === 'ArrowRight' || event.key === 'd') keys.right = false;
-        if (event.key === 'ArrowUp' || event.key === 'w' || event.key === ' ') keys.jump = false;
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    leftBtn.addEventListener('touchstart', () => keys.left = true);
-    leftBtn.addEventListener('touchend', () => keys.left = false);
-    rightBtn.addEventListener('touchstart', () => keys.right = true);
-    rightBtn.addEventListener('touchend', () => keys.right = false);
-    jumpBtn.addEventListener('touchstart', (event) => {
-        event.preventDefault();
-        keys.jump = true;
-    });
-    jumpBtn.addEventListener('touchend', () => keys.jump = false);
-    jumpBtn.addEventListener('mousedown', () => keys.jump = true);
-    jumpBtn.addEventListener('mouseup', () => keys.jump = false);
-
-    function checkCollision(rectA, rectB) {
-        return rectA.x < rectB.x + rectB.width &&
-               rectA.x + rectA.width > rectB.x &&
-               rectA.y < rectB.y + rectB.height &&
-               rectA.y + rectA.height > rectB.y;
-    }
-
-    // Lógica principal do jogo
-    function update() {
-        if (levelComplete) {
-            window.location.href = 'https://www.google.com';
-            return;
-        }
-
-        player.velocityX = 0;
-        if (keys.left) player.velocityX = -playerSpeed;
-        if (keys.right) player.velocityX = playerSpeed;
-        player.x += player.velocityX;
-
-        if (keys.jump && !player.isJumping) {
-            player.velocityY = jumpPower;
-            player.isJumping = true;
-        }
-
-        player.velocityY += gravity;
-        player.y += player.velocityY;
-
-        // Lógica de colisão com o chão
-        if (player.y + playerHeight > gameHeight - groundHeight) {
-            player.y = gameHeight - groundHeight - playerHeight;
-            player.velocityY = 0;
-            player.isJumping = false;
-        }
-
-        for (let obstacle of obstacles) {
-            if (checkCollision(player, obstacle)) {
-                player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight;
-                player.velocityY = 0;
-                player.isJumping = false;
-            }
-        }
-
-        const scaleX = canvas.width / gameWidth;
-        const scaleY = canvas.height / gameHeight;
-        playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
-        
-        if (player.x > gameWidth - finalZoneWidth) {
-            levelComplete = true;
+    // Função para criar os itens
+    function createItems() {
+        for (let i = 0; i < totalItems; i++) {
+            const item = document.createElement('img');
+            item.src = 'item.png';
+            item.classList.add('item');
+            positionItem(item);
+            gameArea.appendChild(item);
+            items.push(item);
         }
     }
 
-    function drawObstacles() {
-        ctx.fillStyle = 'red';
-        obstacles.forEach(obstacle => {
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-        });
+    // Função para posicionar um item aleatoriamente
+    function positionItem(item) {
+        const x = Math.random() * 90;
+        const y = Math.random() * 90;
+        item.style.left = `${x}%`;
+        item.style.top = `${y}%`;
     }
 
-    function draw() {
-        ctx.clearRect(0, 0, gameWidth, gameHeight);
-        drawObstacles();
+    // Função para verificar colisão
+    function checkCollision(element1, element2) {
+        const rect1 = element1.getBoundingClientRect();
+        const rect2 = element2.getBoundingClientRect();
 
-        // Desenha o chão
-        ctx.fillStyle = '#1c1c1c';
-        ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
-
-        // Desenha a linha de chegada
-        ctx.fillStyle = 'green';
-        ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
+        return !(
+            rect1.top > rect2.bottom ||
+            rect1.bottom < rect2.top ||
+            rect1.left > rect2.right ||
+            rect1.right < rect2.left
+        );
     }
 
+    // Função principal do jogo (loop)
     function gameLoop() {
-        update();
-        draw();
+        // Verifica a colisão com os itens
+        if (itemsCollected < totalItems) {
+            items.forEach((item, index) => {
+                if (item && checkCollision(character, item)) {
+                    item.remove();
+                    items[index] = null;
+                    itemsCollected++;
+                    console.log(`Itens coletados: ${itemsCollected}`);
+                    if (itemsCollected === totalItems) {
+                        createFinalCircle();
+                    }
+                }
+            });
+        }
+        
+        // Verifica a colisão com o círculo final
+        if (finalCircle && checkCollision(character, finalCircle)) {
+            // Ação do botão para o círculo
+            actionButton.onclick = () => {
+                window.location.href = 'https://www.google.com';
+            };
+        } else {
+            // Remove a ação do botão para o círculo
+            actionButton.onclick = null;
+        }
+
         requestAnimationFrame(gameLoop);
     }
 
+    // Função para criar o círculo final
+    function createFinalCircle() {
+        finalCircle = document.createElement('div');
+        finalCircle.classList.add('game-end-circle');
+        finalCircle.style.display = 'block';
+        gameArea.appendChild(finalCircle);
+    }
+
+    // Event listeners para os botões direcionais
+    document.getElementById('up').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        characterPosition.y = Math.max(0, characterPosition.y - 2);
+        updateCharacterPosition();
+    });
+
+    document.getElementById('down').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        characterPosition.y = Math.min(90, characterPosition.y + 2);
+        updateCharacterPosition();
+    });
+
+    document.getElementById('left').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        characterPosition.x = Math.max(0, characterPosition.x - 2);
+        updateCharacterPosition();
+    });
+
+    document.getElementById('right').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        characterPosition.x = Math.min(90, characterPosition.x + 2);
+        updateCharacterPosition();
+    });
+
+    // Inicia o jogo
+    createItems();
+    updateCharacterPosition();
     gameLoop();
 });
