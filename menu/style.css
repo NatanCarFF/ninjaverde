@@ -1,0 +1,55 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.menu-container {
+    background-image: url('menu.png');
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.botao-animado {
+    padding: 15px 30px;
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #2e7d32; /* Cor de fundo do botão */
+    border: 3px solid #1b5e20;
+    border-radius: 10px;
+    text-decoration: none;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+    /* Aplica a animação de pulso */
+    animation: pulse 1.5s infinite;
+}
+
+.botao-animado:hover {
+    background-color: #388e3c; /* Cor de fundo ao passar o mouse */
+    transform: scale(1.05);
+}
+
+/* Define a animação de pulso */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
