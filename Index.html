@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mover GIF com Setas</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        #container {
+            position: relative;
+            width: 500px; /* Largura da área onde a imagem se move */
+            height: 400px; /* Altura da área onde a imagem se move */
+            background-color: #e0e0e0;
+            border: 2px solid #ccc;
+            overflow: hidden; /* Mantém a imagem dentro da área */
+        }
+
+        #imagem-movel {
+            position: absolute;
+            width: 80px; /* Tamanho da sua imagem GIF */
+            height: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centraliza a imagem no início */
+        }
+
+        #controles {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .linha-controles {
+            display: flex;
+            justify-content: center;
+        }
+
+        .seta {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 24px;
+            border-radius: 5px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .seta:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <img id="imagem-movel" src="seu_arquivo.gif" alt="Imagem móvel">
+    </div>
+
+    <div id="controles">
+        <div class="linha-controles">
+            <button class="seta" onclick="moverParaCima()">↑</button>
+        </div>
+        <div class="linha-controles">
+            <button class="seta" onclick="moverParaEsquerda()">←</button>
+            <button class="seta" onclick="moverParaDireita()">→</button>
+        </div>
+        <div class="linha-controles">
+            <button class="seta" onclick="moverParaBaixo()">↓</button>
+        </div>
+    </div>
+
+    <script>
+        const imagem = document.getElementById('imagem-movel');
+        const container = document.getElementById('container');
+        const passo = 10; // Quantidade de pixels que a imagem se move por clique
+
+        let posicaoX = (container.offsetWidth / 2) - (imagem.offsetWidth / 2);
+        let posicaoY = (container.offsetHeight / 2) - (imagem.offsetHeight / 2);
+
+        function moverImagem() {
+            imagem.style.left = posicaoX + 'px';
+            imagem.style.top = posicaoY + 'px';
+        }
+
+        function moverParaCima() {
+            posicaoY -= passo;
+            if (posicaoY < 0) posicaoY = 0;
+            moverImagem();
+        }
+
+        function moverParaBaixo() {
+            posicaoY += passo;
+            if (posicaoY > container.offsetHeight - imagem.offsetHeight) {
+                posicaoY = container.offsetHeight - imagem.offsetHeight;
+            }
+            moverImagem();
+        }
+
+        function moverParaEsquerda() {
+            posicaoX -= passo;
+            if (posicaoX < 0) posicaoX = 0;
+            moverImagem();
+        }
+
+        function moverParaDireita() {
+            posicaoX += passo;
+            if (posicaoX > container.offsetWidth - imagem.offsetWidth) {
+                posicaoX = container.offsetWidth - imagem.offsetWidth;
+            }
+            moverImagem();
+        }
+        
+        // Inicializa a posição da imagem no centro
+        moverImagem();
+    </script>
+
+</body>
+  </html>
