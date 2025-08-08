@@ -182,8 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const scaleX = canvas.width / gameWidth;
         const scaleY = canvas.height / gameHeight;
         playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
-        playerContainer.style.width = playerWidth * scaleX + 'px';
-        playerContainer.style.height = playerHeight * scaleY + 'px';
 
         if (player.x > gameWidth - finalZoneWidth) {
             levelComplete = true;
