@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isJumping: false
     };
 
-    // Obstáculos (agora apenas 3)
+    // Obstáculos (apenas os 3 solicitados)
     let obstacles = [
         { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
         { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         player.velocityY += gravity;
         player.y += player.velocityY;
 
+        // Lógica de colisão com o chão
         if (player.y + playerHeight > gameHeight - groundHeight) {
             player.y = gameHeight - groundHeight - playerHeight;
             player.velocityY = 0;
@@ -155,7 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, gameWidth, gameHeight);
         drawObstacles();
 
-        // Linha verde de chegada
+        // Desenha o chão
+        ctx.fillStyle = '#1c1c1c';
+        ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
+
+        // Desenha a linha de chegada
         ctx.fillStyle = 'green';
         ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
     }
