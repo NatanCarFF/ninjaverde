@@ -20,21 +20,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let player = {
         x: 50,
-        y: gameHeight - groundHeight - playerHeight + 2, // Ligeiro ajuste na posição Y inicial
+        y: gameHeight - groundHeight - playerHeight,
         velocityX: 0,
         velocityY: 0,
         isJumping: false
     };
 
-    // Obstáculos, Pedras e Pontes - Apenas 3 obstáculos
+    // Obstáculos, Pedras e Pontes
     let obstacles = [
         { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
         { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
-        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
+        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 },
+        { x: 800, y: gameHeight - groundHeight - 70, width: 40, height: 70 },
+        { x: 300, y: gameHeight - groundHeight - 20, width: 50, height: 20 },
+        { x: 500, y: gameHeight - groundHeight - 50, width: 20, height: 50 },
+        { x: 750, y: gameHeight - groundHeight - 50, width: 40, height: 50 }
     ];
 
     let environment = [
-        // Cenário removido para que você possa usar sua imagem de fundo
+        { type: 'platform', x: 150, y: gameHeight - groundHeight + 20, width: 100, height: 20 },
+        { type: 'platform', x: 550, y: gameHeight - groundHeight + 10, width: 80, height: 20 },
+        { type: 'stone', x: 700, y: gameHeight - groundHeight - 10, width: 40, height: 40 }
     ];
 
     // Animação de Morcegos
@@ -139,8 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
         player.velocityY += gravity;
         player.y += player.velocityY;
 
-        if (player.y + playerHeight > gameHeight - groundHeight + 1) { // Pequeno ajuste na colisão
-            player.y = gameHeight - groundHeight - playerHeight + 1;
+        if (player.y + playerHeight > gameHeight - groundHeight) {
+            player.y = gameHeight - groundHeight - playerHeight;
             player.velocityY = 0;
             player.isJumping = false;
         }
@@ -148,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let obstacle of obstacles) {
             if (checkCollision(player, obstacle)) {
                 player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight + 2;
+                player.y = gameHeight - groundHeight - playerHeight;
                 player.velocityY = 0;
                 player.isJumping = false;
             }
@@ -161,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (checkCollision(player, { x: bat.x, y: bat.y, width: 30, height: 20 })) {
                 player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight + 2;
+                player.y = gameHeight - groundHeight - playerHeight;
                 player.velocityY = 0;
                 player.isJumping = false;
             }
@@ -176,14 +182,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const scaleX = canvas.width / gameWidth;
         const scaleY = canvas.height / gameHeight;
         playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
-
+        
         if (player.x > gameWidth - finalZoneWidth) {
             levelComplete = true;
         }
     }
 
     function drawEnvironment() {
-        // Nada para desenhar, pois o cenário será sua imagem de fundo
+        ctx.fillStyle = '#4a4a4a';
+        environment.forEach(obj => {
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+        });
     }
 
     function drawObstacles() {
@@ -214,9 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         drawBats();
         drawTorches();
 
-        ctx.fillStyle = '#1c1c1c'; // Cor do chão
-        ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
-        ctx.fillStyle = 'green'; // Cor da linha de chegada
+        ctx.fillStyle = 'green';
         ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
     }
 
