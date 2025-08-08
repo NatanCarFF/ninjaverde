@@ -3,143 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mover GIF em Celular (Paisagem)</title>
-    <style>
-        body {
-            background-color: #f0f0f0;
-            margin: 0;
-            display: flex;
-            justify-content: flex-start; /* Alinha o conteúdo à esquerda */
-            align-items: center;
-            height: 100vh;
-            font-family: sans-serif;
-            flex-direction: row;
-            overflow: hidden; /* Evita a rolagem da página */
-        }
-
-        #controles {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-color: #e0e0e0;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .linha-controles {
-            display: flex;
-            justify-content: center;
-        }
-
-        .seta {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 15px;
-            margin: 5px;
-            cursor: pointer;
-            font-size: 24px;
-            border-radius: 50%; /* Torna os botões redondos */
-            width: 70px;
-            height: 70px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.2s;
-            touch-action: manipulation; /* Melhora a experiência de toque */
-        }
-
-        .seta:active {
-            background-color: #555;
-        }
-
-        #container {
-            position: relative;
-            flex-grow: 1; /* Ocupa o espaço restante */
-            height: 100%;
-            background-color: #fff;
-            overflow: hidden;
-        }
-
-        #imagem-movel {
-            position: absolute;
-            width: 100px; /* Tamanho da sua imagem GIF */
-            height: auto;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+    <title>Ninja Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="controles">
-        <div class="linha-controles">
-            <button class="seta" onclick="moverParaCima()">↑</button>
-        </div>
-        <div class="linha-controles">
-            <button class="seta" onclick="moverParaEsquerda()">←</button>
-            <button class="seta" onclick="moverParaDireita()">→</button>
-        </div>
-        <div class="linha-controles">
-            <button class="seta" onclick="moverParaBaixo()">↓</button>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="controls">
+            <button id="left-btn" class="control-btn">◀</button>
+            <button id="right-btn" class="control-btn">▶</button>
+            <button id="jump-btn" class="control-btn">▲</button>
         </div>
     </div>
-
-    <div id="container">
-        <img id="imagem-movel" src="seu_arquivo.gif" alt="Imagem móvel">
-    </div>
-
-    <script>
-        const imagem = document.getElementById('imagem-movel');
-        const container = document.getElementById('container');
-        const passo = 20; /* Aumentei o passo para mover mais rápido em telas menores */
-
-        let posicaoX = (container.offsetWidth / 2) - (imagem.offsetWidth / 2);
-        let posicaoY = (container.offsetHeight / 2) - (imagem.offsetHeight / 2);
-
-        function moverImagem() {
-            imagem.style.left = posicaoX + 'px';
-            imagem.style.top = posicaoY + 'px';
-        }
-
-        function moverParaCima() {
-            posicaoY -= passo;
-            if (posicaoY < 0) posicaoY = 0;
-            moverImagem();
-        }
-
-        function moverParaBaixo() {
-            posicaoY += passo;
-            if (posicaoY > container.offsetHeight - imagem.offsetHeight) {
-                posicaoY = container.offsetHeight - imagem.offsetHeight;
-            }
-            moverImagem();
-        }
-
-        function moverParaEsquerda() {
-            posicaoX -= passo;
-            if (posicaoX < 0) posicaoX = 0;
-            moverImagem();
-        }
-
-        function moverParaDireita() {
-            posicaoX += passo;
-            if (posicaoX > container.offsetWidth - imagem.offsetWidth) {
-                posicaoX = container.offsetWidth - imagem.offsetWidth;
-            }
-            moverImagem();
-        }
-        
-        // Inicializa a posição da imagem no centro
-        window.addEventListener('load', () => {
-            posicaoX = (container.offsetWidth / 2) - (imagem.offsetWidth / 2);
-            posicaoY = (container.offsetHeight / 2) - (imagem.offsetHeight / 2);
-            moverImagem();
-        });
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
