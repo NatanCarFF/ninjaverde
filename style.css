@@ -41,9 +41,8 @@ body {
 
 .controls {
     position: absolute;
-    top: 50%;
-    left: 20px;
-    transform: translateY(-50%);
+    bottom: 20px; /* Ajuste para o canto inferior */
+    left: 20px; /* Ajuste para o canto esquerdo */
     display: flex;
     flex-direction: column;
     align-items: center;
