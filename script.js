@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let player = {
         x: 50,
-        y: gameHeight - groundHeight - playerHeight,
+        y: gameHeight - groundHeight - playerHeight + 2, // Ligeiro ajuste na posição Y inicial
         velocityX: 0,
         velocityY: 0,
         isJumping: false
@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
         player.velocityY += gravity;
         player.y += player.velocityY;
 
-        if (player.y + playerHeight > gameHeight - groundHeight) {
-            player.y = gameHeight - groundHeight - playerHeight;
+        if (player.y + playerHeight > gameHeight - groundHeight + 1) { // Pequeno ajuste na colisão
+            player.y = gameHeight - groundHeight - playerHeight + 1;
             player.velocityY = 0;
             player.isJumping = false;
         }
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let obstacle of obstacles) {
             if (checkCollision(player, obstacle)) {
                 player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight;
+                player.y = gameHeight - groundHeight - playerHeight + 2;
                 player.velocityY = 0;
                 player.isJumping = false;
             }
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (checkCollision(player, { x: bat.x, y: bat.y, width: 30, height: 20 })) {
                 player.x = 50;
-                player.y = gameHeight - groundHeight - playerHeight;
+                player.y = gameHeight - groundHeight - playerHeight + 2;
                 player.velocityY = 0;
                 player.isJumping = false;
             }
@@ -224,6 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
         drawTorches();
 
         ctx.fillStyle = 'green';
+        ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
+        ctx.fillStyle = 'white'; // Adicionando uma cor diferente para a linha de chegada
         ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
     }
 
