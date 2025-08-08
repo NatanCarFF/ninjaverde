@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerSpeed = 5;
     const jumpPower = -15;
     const gravity = 0.8;
-    const groundHeight = 50; // Altura do chão na parte inferior
+    const groundHeight = 100; // Aumentamos a altura do chão
+    const finalZoneWidth = 80;
 
     let player = {
         x: 50,
@@ -26,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let ninjaImage = new Image();
     ninjaImage.src = 'seu_arquivo.gif'; // Substitua 'seu_arquivo.gif' pelo nome do seu arquivo GIF
+
+    let obstacles = [
+        { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
+        { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
+        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
+    ];
 
     let levelComplete = false;
 
@@ -78,13 +85,25 @@ document.addEventListener('DOMContentLoaded', () => {
     leftBtn.addEventListener('touchend', () => keys.left = false);
     rightBtn.addEventListener('touchstart', () => keys.right = true);
     rightBtn.addEventListener('touchend', () => keys.right = false);
-    jumpBtn.addEventListener('touchstart', () => keys.jump = true);
+    jumpBtn.addEventListener('touchstart', (event) => {
+        event.preventDefault(); // Impede o comportamento padrão do touch, como o zoom
+        keys.jump = true;
+    });
     jumpBtn.addEventListener('touchend', () => keys.jump = false);
+    jumpBtn.addEventListener('mousedown', () => keys.jump = true);
+    jumpBtn.addEventListener('mouseup', () => keys.jump = false);
+
+    // Lógica para detecção de colisão
+    function checkCollision(objA, objB) {
+        return objA.x < objB.x + objB.width &&
+               objA.x + objA.width > objB.x &&
+               objA.y < objB.y + objB.height &&
+               objA.y + objA.height > objB.y;
+    }
 
     // Lógica do jogo
     function update() {
         if (levelComplete) {
-            // Se a fase estiver completa, redireciona para o google.com
             window.location.href = 'https://www.google.com';
             return;
         }
@@ -116,9 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
             player.isJumping = false;
         }
 
-        // Simulação de final de fase
-        // Se o jogador chegar a uma determinada posição, a fase é concluída
-        if (player.x > gameWidth - 100) {
+        // Colisão com os obstáculos
+        for (let i = 0; i < obstacles.length; i++) {
+            if (checkCollision(player, obstacles[i])) {
+                // Redefine a posição do jogador
+                player.x = 50;
+                player.y = gameHeight - groundHeight - player.height;
+                player.velocityY = 0;
+                player.isJumping = false;
+            }
+        }
+        
+        // Simulação de final de fase: passar por todos os obstáculos
+        if (player.x > gameWidth - finalZoneWidth) {
             levelComplete = true;
         }
     }
@@ -132,12 +161,22 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = '#1c1c1c';
         ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
 
+        // Desenha os obstáculos
+        ctx.fillStyle = 'red';
+        obstacles.forEach(obstacle => {
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        });
+        
+        // Desenha o final de fase
+        ctx.fillStyle = 'green';
+        ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
+
         // Desenha o personagem
         if (ninjaImage.complete) {
             ctx.drawImage(ninjaImage, player.x, player.y, player.width, player.height);
         } else {
             // Se a imagem ainda não carregou, desenha um quadrado temporário
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = 'blue';
             ctx.fillRect(player.x, player.y, player.width, player.height);
         }
     }
