@@ -26,21 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
         isJumping: false
     };
 
-    // Obstáculos, Pedras e Pontes
+    // Obstáculos, Pedras e Pontes - Apenas 3 obstáculos
     let obstacles = [
         { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
         { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
-        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 },
-        { x: 800, y: gameHeight - groundHeight - 70, width: 40, height: 70 },
-        { x: 300, y: gameHeight - groundHeight - 20, width: 50, height: 20 },
-        { x: 500, y: gameHeight - groundHeight - 50, width: 20, height: 50 },
-        { x: 750, y: gameHeight - groundHeight - 50, width: 40, height: 50 }
+        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
     ];
 
     let environment = [
-        { type: 'platform', x: 150, y: gameHeight - groundHeight + 20, width: 100, height: 20 },
-        { type: 'platform', x: 550, y: gameHeight - groundHeight + 10, width: 80, height: 20 },
-        { type: 'stone', x: 700, y: gameHeight - groundHeight - 10, width: 40, height: 40 }
+        // Cenário removido para que você possa usar sua imagem de fundo
     ];
 
     // Animação de Morcegos
@@ -189,10 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawEnvironment() {
-        ctx.fillStyle = '#4a4a4a';
-        environment.forEach(obj => {
-            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-        });
+        // Nada para desenhar, pois o cenário será sua imagem de fundo
     }
 
     function drawObstacles() {
@@ -223,9 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
         drawBats();
         drawTorches();
 
-        ctx.fillStyle = 'green';
+        ctx.fillStyle = '#1c1c1c'; // Cor do chão
         ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
-        ctx.fillStyle = 'white'; // Adicionando uma cor diferente para a linha de chegada
+        ctx.fillStyle = 'green'; // Cor da linha de chegada
         ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
     }
 
