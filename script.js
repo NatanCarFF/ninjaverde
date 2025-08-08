@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Referências aos elementos HTML
+    const playerContainer = document.getElementById('player-container');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const leftBtn = document.getElementById('left-btn');
@@ -12,31 +13,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerSpeed = 5;
     const jumpPower = -15;
     const gravity = 0.8;
-    const groundHeight = 100; // Aumentamos a altura do chão
+    const groundHeight = 100;
+    const playerWidth = 50;
+    const playerHeight = 50;
     const finalZoneWidth = 80;
 
     let player = {
         x: 50,
-        y: gameHeight - groundHeight - 50,
-        width: 50,
-        height: 50,
+        y: gameHeight - groundHeight - playerHeight,
         velocityX: 0,
         velocityY: 0,
         isJumping: false
     };
 
-    let ninjaImage = new Image();
-    ninjaImage.src = 'seu_arquivo.gif'; // Substitua 'seu_arquivo.gif' pelo nome do seu arquivo GIF
-
+    // Obstáculos, Pedras e Pontes
     let obstacles = [
         { x: 200, y: gameHeight - groundHeight - 30, width: 30, height: 30 },
         { x: 400, y: gameHeight - groundHeight - 60, width: 30, height: 60 },
-        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 }
+        { x: 600, y: gameHeight - groundHeight - 45, width: 30, height: 45 },
+        { x: 800, y: gameHeight - groundHeight - 70, width: 40, height: 70 },
+        { x: 300, y: gameHeight - groundHeight - 20, width: 50, height: 20 },
+        { x: 500, y: gameHeight - groundHeight - 50, width: 20, height: 50 },
+        { x: 750, y: gameHeight - groundHeight - 50, width: 40, height: 50 }
     ];
+
+    let environment = [
+        { type: 'platform', x: 150, y: gameHeight - groundHeight + 20, width: 100, height: 20 },
+        { type: 'platform', x: 550, y: gameHeight - groundHeight + 10, width: 80, height: 20 },
+        { type: 'stone', x: 700, y: gameHeight - groundHeight - 10, width: 40, height: 40 }
+    ];
+
+    // Animação de Morcegos
+    let bats = [
+        { x: 300, y: 100, speedX: 2 },
+        { x: 700, y: 150, speedX: -1.5 }
+    ];
+
+    // Animação de Tochas
+    let torches = [
+        { x: 100, y: gameHeight - groundHeight - 60, colorIndex: 0 },
+        { x: 850, y: gameHeight - groundHeight - 70, colorIndex: 1 }
+    ];
+    const torchColors = ['#ff9900', '#ff6600'];
+    let torchTimer = 0;
+    const torchInterval = 15;
 
     let levelComplete = false;
 
-    // Redimensiona o canvas para se ajustar à tela
+    // Redimensiona o canvas e o player-container
     function resizeCanvas() {
         const aspectRatio = gameWidth / gameHeight;
         let newWidth, newHeight;
@@ -52,18 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = newWidth;
         canvas.height = newHeight;
 
-        // Ajusta a proporção do contexto de renderização
-        ctx.setTransform(newWidth / gameWidth, 0, 0, newHeight / gameHeight, 0, 0);
+        const scaleX = newWidth / gameWidth;
+        const scaleY = newHeight / gameHeight;
+
+        ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+
+        playerContainer.style.width = playerWidth * scaleX + 'px';
+        playerContainer.style.height = playerHeight * scaleY + 'px';
+        playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
     // Lógica dos controles
-    let keys = {
-        left: false,
-        right: false,
-        jump: false
-    };
+    let keys = { left: false, right: false, jump: false };
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowLeft' || event.key === 'a') keys.left = true;
@@ -80,122 +106,134 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
 
-    // Lógica para os botões da tela
     leftBtn.addEventListener('touchstart', () => keys.left = true);
     leftBtn.addEventListener('touchend', () => keys.left = false);
     rightBtn.addEventListener('touchstart', () => keys.right = true);
     rightBtn.addEventListener('touchend', () => keys.right = false);
     jumpBtn.addEventListener('touchstart', (event) => {
-        event.preventDefault(); // Impede o comportamento padrão do touch, como o zoom
+        event.preventDefault();
         keys.jump = true;
     });
     jumpBtn.addEventListener('touchend', () => keys.jump = false);
     jumpBtn.addEventListener('mousedown', () => keys.jump = true);
     jumpBtn.addEventListener('mouseup', () => keys.jump = false);
 
-    // Lógica para detecção de colisão
-    function checkCollision(objA, objB) {
-        return objA.x < objB.x + objB.width &&
-               objA.x + objA.width > objB.x &&
-               objA.y < objB.y + objB.height &&
-               objA.y + objA.height > objB.y;
+    function checkCollision(rectA, rectB) {
+        return rectA.x < rectB.x + rectB.width &&
+               rectA.x + rectA.width > rectB.x &&
+               rectA.y < rectB.y + rectB.height &&
+               rectA.y + rectA.height > rectB.y;
     }
 
-    // Lógica do jogo
+    // Lógica principal do jogo
     function update() {
         if (levelComplete) {
             window.location.href = 'https://www.google.com';
             return;
         }
 
-        // Movimento horizontal
         player.velocityX = 0;
-        if (keys.left) {
-            player.velocityX = -playerSpeed;
-        }
-        if (keys.right) {
-            player.velocityX = playerSpeed;
-        }
+        if (keys.left) player.velocityX = -playerSpeed;
+        if (keys.right) player.velocityX = playerSpeed;
         player.x += player.velocityX;
 
-        // Pulo
         if (keys.jump && !player.isJumping) {
             player.velocityY = jumpPower;
             player.isJumping = true;
         }
-        
-        // Gravidade
+
         player.velocityY += gravity;
         player.y += player.velocityY;
-        
-        // Colisão com o chão
-        if (player.y + player.height > gameHeight - groundHeight) {
-            player.y = gameHeight - groundHeight - player.height;
+
+        if (player.y + playerHeight > gameHeight - groundHeight) {
+            player.y = gameHeight - groundHeight - playerHeight;
             player.velocityY = 0;
             player.isJumping = false;
         }
 
-        // Colisão com os obstáculos
-        for (let i = 0; i < obstacles.length; i++) {
-            if (checkCollision(player, obstacles[i])) {
-                // Redefine a posição do jogador
+        for (let obstacle of obstacles) {
+            if (checkCollision(player, obstacle)) {
                 player.x = 50;
-                player.y = gameHeight - groundHeight - player.height;
+                player.y = gameHeight - groundHeight - playerHeight;
                 player.velocityY = 0;
                 player.isJumping = false;
             }
         }
-        
-        // Simulação de final de fase: passar por todos os obstáculos
+
+        for (let bat of bats) {
+            bat.x += bat.speedX;
+            if (bat.x < 0 || bat.x > gameWidth) {
+                bat.speedX *= -1;
+            }
+            if (checkCollision(player, { x: bat.x, y: bat.y, width: 30, height: 20 })) {
+                player.x = 50;
+                player.y = gameHeight - groundHeight - playerHeight;
+                player.velocityY = 0;
+                player.isJumping = false;
+            }
+        }
+
+        torchTimer++;
+        if (torchTimer >= torchInterval) {
+            torchTimer = 0;
+            torches.forEach(torch => torch.colorIndex = 1 - torch.colorIndex);
+        }
+
+        const scaleX = canvas.width / gameWidth;
+        const scaleY = canvas.height / gameHeight;
+        playerContainer.style.transform = `translate(${player.x * scaleX}px, ${player.y * scaleY}px)`;
+        playerContainer.style.width = playerWidth * scaleX + 'px';
+        playerContainer.style.height = playerHeight * scaleY + 'px';
+
         if (player.x > gameWidth - finalZoneWidth) {
             levelComplete = true;
         }
     }
 
-    // Renderiza o jogo na tela
-    function draw() {
-        // Limpa o canvas
-        ctx.clearRect(0, 0, gameWidth, gameHeight);
+    function drawEnvironment() {
+        ctx.fillStyle = '#4a4a4a';
+        environment.forEach(obj => {
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+        });
+    }
 
-        // Desenha o chão
-        ctx.fillStyle = '#1c1c1c';
-        ctx.fillRect(0, gameHeight - groundHeight, gameWidth, groundHeight);
-
-        // Desenha os obstáculos
+    function drawObstacles() {
         ctx.fillStyle = 'red';
         obstacles.forEach(obstacle => {
             ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         });
-        
-        // Desenha o final de fase
-        ctx.fillStyle = 'green';
-        ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
-
-        // Desenha o personagem
-        if (ninjaImage.complete) {
-            ctx.drawImage(ninjaImage, player.x, player.y, player.width, player.height);
-        } else {
-            // Se a imagem ainda não carregou, desenha um quadrado temporário
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-        }
     }
 
-    // Loop principal do jogo
+    function drawBats() {
+        ctx.fillStyle = '#333';
+        bats.forEach(bat => {
+            ctx.fillRect(bat.x, bat.y, 30, 20);
+        });
+    }
+
+    function drawTorches() {
+        torches.forEach(torch => {
+            ctx.fillStyle = torchColors[torch.colorIndex];
+            ctx.fillRect(torch.x, torch.y, 10, 30);
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, gameWidth, gameHeight);
+        drawEnvironment();
+        drawObstacles();
+        drawBats();
+        drawTorches();
+
+        ctx.fillStyle = 'green';
+        ctx.fillRect(gameWidth - finalZoneWidth, gameHeight - groundHeight, finalZoneWidth, groundHeight);
+    }
+
     function gameLoop() {
         update();
         draw();
         requestAnimationFrame(gameLoop);
     }
-    
-    // Inicia o loop do jogo
-    ninjaImage.onload = () => {
-        gameLoop();
-    };
 
-    // Caso a imagem falhe ao carregar
-    ninjaImage.onerror = () => {
-        console.error('Erro ao carregar a imagem do ninja. Verifique se o arquivo "seu_arquivo.gif" está no local correto.');
-        gameLoop();
-    };
+    gameLoop();
 });
