@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let finalCircle = null;
 
     const items = [];
-    const moveSpeed = 2; // Velocidade de movimento do personagem
+    const moveSpeed = 3; // Velocidade de movimento do personagem
 
     // Função para posicionar o personagem
     function updateCharacterPosition() {
