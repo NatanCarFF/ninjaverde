@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jogo do Pulo</title>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        #game-container {
+            width: 100vh; /* Para garantir o modo paisagem */
+            height: 100vw;
+            position: relative;
+            border: 2px solid #000;
+            background-color: #fff;
+            transform: rotate(90deg) scaleX(-1);
+            transform-origin: center;
+        }
+
+        @media (orientation: portrait) {
+            #game-container {
+                width: 100vw;
+                height: 100vh;
+                transform: none;
+            }
+        }
+
+        #character {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            background-image: url('meu personagem.gif');
+            background-size: cover;
+        }
+
+        .obstacle {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            bottom: 0;
+            right: -30px;
+            background-image: url('obstaculo.png');
+            background-size: cover;
+            animation: moveObstacle linear infinite;
+        }
+
+        @keyframes moveObstacle {
+            0% {
+                right: -30px;
+            }
+            100% {
+                right: 100%;
+            }
+        }
+
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-family: sans-serif;
+            z-index: 10;
+            color: #000;
+        }
+
+        .jump {
+            animation: jump 0.5s ease-out forwards;
+        }
+
+        @keyframes jump {
+            0% { bottom: 0; }
+            50% { bottom: 120px; }
+            100% { bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="character"></div>
+        <div id="timer">Tempo: 60</div>
+    </div>
+
+    <script>
+        const character = document.getElementById('character');
+        const gameContainer = document.getElementById('game-container');
+        const timerDisplay = document.getElementById('timer');
+
+        let isJumping = false;
+        let score = 0;
+        let obstacleInterval;
+        let gameTimer;
+        let timeLeft = 60;
+
+        function jump() {
+            if (!isJumping) {
+                isJumping = true;
+                character.classList.add('jump');
+                setTimeout(() => {
+                    character.classList.remove('jump');
+                    isJumping = false;
+                }, 500);
+            }
+        }
+
+        document.addEventListener('touchstart', jump);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+            }
+        });
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            gameContainer.appendChild(obstacle);
+
+            let animationDuration = Math.random() * (2.5 - 1.5) + 1.5;
+            obstacle.style.animationDuration = `${animationDuration}s`;
+            
+            obstacleInterval = setInterval(() => {
+                const charPos = character.getBoundingClientRect();
+                const obsPos = obstacle.getBoundingClientRect();
+
+                if (
+                    charPos.right > obsPos.left &&
+                    charPos.left < obsPos.right &&
+                    charPos.bottom > obsPos.top &&
+                    charPos.top < obsPos.bottom
+                ) {
+                    endGame(false); // Colisão
+                }
+
+                if (obsPos.right < 0) {
+                    obstacle.remove();
+                    clearInterval(obstacleInterval);
+                }
+            }, 10);
+        }
+
+        function startGame() {
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = `Tempo: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    endGame(true); // Vitória
+                }
+            }, 1000);
+            
+            setInterval(createObstacle, 1500); // Cria um novo obstáculo a cada 1.5s
+        }
+
+        function endGame(success) {
+            clearInterval(gameTimer);
+            const obstacles = document.querySelectorAll('.obstacle');
+            obstacles.forEach(obs => obs.style.animationPlayState = 'paused');
+
+            if (success) {
+                window.location.href = 'https://natancarff.github.io/ninjaverde/menu/index.html';
+            } else {
+                window.location.href = 'https://natancarff.github.io/ninjaverde';
+            }
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
