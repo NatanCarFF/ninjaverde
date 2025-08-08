@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Verifica a colisão com o círculo final e redireciona
         if (finalCircle && checkCollision(character, finalCircle)) {
-            window.location.href = 'https://natancarff.github.io/ninjaverde';
+            window.location.href = 'https://natancarff.github.io/ninjaverde/menu/index.html';
         }
 
         requestAnimationFrame(gameLoop);

@@ -3,6 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     botaoIniciar.addEventListener('click', () => {
         // Redireciona para o Google quando o botão for clicado
-        window.location.href = 'https://www.google.com';
+        window.location.href = 'https://natancarff.github.io/ninjaverde';
     });
 });
