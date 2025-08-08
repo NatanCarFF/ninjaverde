@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerHeight = 50;
     const finalZoneWidth = 80;
 
+    // Posição inicial do personagem - A base do personagem fica exatamente na linha do chão.
     let player = {
         x: 50,
         y: gameHeight - groundHeight - playerHeight,
