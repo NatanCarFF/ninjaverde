@@ -1,14 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const character = document.getElementById('character');
     const gameArea = document.querySelector('.game-area');
-    const gameContainer = document.querySelector('.game-container');
-    const actionButton = document.getElementById('action');
     const totalItems = 10;
     let itemsCollected = 0;
     let characterPosition = { x: 50, y: 50 };
     let finalCircle = null;
 
     const items = [];
+    const moveSpeed = 2; // Velocidade de movimento do personagem
 
     // Função para posicionar o personagem
     function updateCharacterPosition() {
@@ -66,15 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Verifica a colisão com o círculo final
+        // Verifica a colisão com o círculo final e redireciona
         if (finalCircle && checkCollision(character, finalCircle)) {
-            // Ação do botão para o círculo
-            actionButton.onclick = () => {
-                window.location.href = 'https://www.google.com';
-            };
-        } else {
-            // Remove a ação do botão para o círculo
-            actionButton.onclick = null;
+            window.location.href = 'https://www.google.com';
         }
 
         requestAnimationFrame(gameLoop);
@@ -91,25 +84,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners para os botões direcionais
     document.getElementById('up').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        characterPosition.y = Math.max(0, characterPosition.y - 2);
+        characterPosition.y = Math.max(0, characterPosition.y - moveSpeed);
         updateCharacterPosition();
     });
 
     document.getElementById('down').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        characterPosition.y = Math.min(90, characterPosition.y + 2);
+        characterPosition.y = Math.min(90, characterPosition.y + moveSpeed);
         updateCharacterPosition();
     });
 
     document.getElementById('left').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        characterPosition.x = Math.max(0, characterPosition.x - 2);
+        characterPosition.x = Math.max(0, characterPosition.x - moveSpeed);
         updateCharacterPosition();
     });
 
     document.getElementById('right').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        characterPosition.x = Math.min(90, characterPosition.x + 2);
+        characterPosition.x = Math.min(90, characterPosition.x + moveSpeed);
         updateCharacterPosition();
     });
 
